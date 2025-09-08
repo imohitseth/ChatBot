@@ -15,6 +15,10 @@ import json
 # request- holds all the info about an incoming req
 # jsonify- converts python dict to json response for sending data over web
 
+@app.route('/')
+def index():
+    return render_template('index.html')
+
 # creating a flask web sever instance
 app=Flask(__name__)
 CORS(app) # This line enables CORS for all routes
@@ -118,4 +122,5 @@ def chat():
 
 
     # jsonify fn converts this dict into a json obj
+
 
