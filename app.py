@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
-import google.generativeai as genai
 from langchain_community.document_loaders import TextLoader
 from langchain_community.vectorstores import FAISS
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
@@ -26,7 +25,6 @@ CORS(app) # This line enables CORS for all routes
 gemini_api_key = os.getenv('GEMINI_API_KEY')
 if not gemini_api_key:
     raise ValueError("GEMINI_API_KEY environment variable not set")
-genai.configure(api_key=gemini_api_key)
 
 
 #logging to the file (records)
@@ -36,9 +34,6 @@ logging.basicConfig(
     format='%(message)s'
 )
 
-# Initialize the Generative Model
-# We specify the model we want to use. You can explore others as well.
-model = genai.GenerativeModel('gemini-1.5-flash')
 
 # knowledge base
 def build_knowledge_base():
@@ -123,3 +118,4 @@ def chat():
 
 
     # jsonify fn converts this dict into a json obj
+
