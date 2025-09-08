@@ -111,7 +111,7 @@ def chat():
         log_entry = {
         "timestamp": datetime.now().isoformat(),
         "user_message": user_message,
-        "chatbot_response": chatbot_response
+        "chatbot_response": response["answer"]
         }
         logging.info(json.dumps(log_entry))
 
@@ -120,5 +120,6 @@ def chat():
     except Exception as e:
         print(f"An error occurred: {e}")
         return jsonify({"error": "Failed to get a response from the AI."}), 500
+
 
     # jsonify fn converts this dict into a json obj
