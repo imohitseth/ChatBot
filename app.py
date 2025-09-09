@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import os
 from langchain_community.document_loaders import TextLoader
@@ -122,5 +122,6 @@ def chat():
 
 
     # jsonify fn converts this dict into a json obj
+
 
 
