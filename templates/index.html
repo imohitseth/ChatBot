@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mohit's Chatbot</title>
+    <style>
+        /* CSS for the chatbot interface */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #121212; /* Dark background */
+            color: #e0e0e0; /* Light text color */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .chat-container {
+            width: 400px;
+            max-width: 90%;
+            background-color: #1f1f1f; /* Darker container background */
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header-area {
+            text-align: center;
+            padding: 20px 0 10px;
+            border-bottom: 1px solid #333;
+        }
+
+        .header-area .main-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .header-area h1 {
+            margin: 0;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .header-area p {
+            margin: 5px 0 0;
+            font-size: 1em;
+            color: #bbb;
+        }
+
+        .chat-box {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 500px;
+        }
+        
+        /* New CSS for message rows and avatar positioning */
+        .message-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .user-message-row {
+            align-self: flex-end;
+            flex-direction: row-reverse; /* Aligns content to the right */
+        }
+
+        .bot-message-row {
+            align-self: flex-start;
+        }
+
+        .message {
+            padding: 10px 15px;
+            border-radius: 18px;
+            max-width: 75%;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            background-color: #4a4a4a;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .bot-message {
+            background-color: #2e2e2e;
+            color: #fff;
+            border-bottom-left-radius: 4px;
+        }
+
+        .bot-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .input-area {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #333;
+        }
+
+        .input-area input {
+            flex-grow: 1;
+            border: none;
+            padding: 10px;
+            border-radius: 20px;
+            background-color: #333;
+            color: #fff;
+            outline: none;
+            font-size: 1em;
+            padding-left: 20px;
+        }
+
+        .input-area input::placeholder {
+            color: #999;
+        }
+
+        .input-area button {
+            border: none;
+            background-color: transparent;
+            color: #999;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 1.2em;
+        }
+
+        .input-area button:hover {
+            color: #fff;
+        }
+
+        .disclaimer {
+            font-size: 0.8em;
+            color: #666;
+            margin: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="header-area">
+            <img src="logo.png" alt="Mohit's Bot Logo" class="main-logo">
+            <h1>Mohit's Bot</h1>
+            <p>Let's decode Mohit!</p>
+        </div>
+        <div class="chat-box" id="chat-box">
+            <div class="message-row bot-message-row">
+                <img src="logo.png" alt="Bot Avatar" class="bot-avatar">
+                <div class="message bot-message">Ask anything about Mohit!</div>
+            </div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Don't hesitate, start with a hi!">
+            <button id="send-btn">Send</button>
+        </div>
+        <p class="disclaimer">Conversations may be logged for quality and improvement purposes.</p>
+    </div>
+
+    <script>
+        // JavaScript for handling the chat logic
+        const chatBox = document.getElementById('chat-box');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const API_URL = 'https://mohits-chatbot.onrender.com/';
+        const BOT_AVATAR_PATH = 'logo.png';
+
+        // Function to send a message and get a response
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (message === "") return;
+
+            addMessage(message, 'user');
+            userInput.value = '';
+
+            // Post the user message to the backend
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                addMessage(data.response, 'bot');
+
+            } catch (error) {
+                console.error("Could not fetch a response:", error);
+                addMessage("Oops! Something went wrong. Please try again.", 'bot');
+            }
+        }
+
+        // Function to add a new message to the chat display
+       function addMessage(text, sender) {
+            const messageRow = document.createElement('div');
+            messageRow.classList.add('message-row');
+
+            const messageDiv = document.createElement('div');
+            messageDiv.textContent = text;
+            messageDiv.classList.add('message');
+
+            if (sender === 'user') {
+                messageRow.classList.add('user-message-row');
+                messageDiv.classList.add('user-message');
+                messageRow.appendChild(messageDiv);
+            } else {
+                messageRow.classList.add('bot-message-row');
+                messageDiv.classList.add('bot-message');
+
+                const avatarImg = document.createElement('img');
+                avatarImg.src = BOT_AVATAR_PATH;
+                avatarImg.alt = "Bot Avatar";
+                avatarImg.classList.add('bot-avatar');
+                
+                messageRow.appendChild(avatarImg);
+                messageRow.appendChild(messageDiv);
+            }
+            chatBox.appendChild(messageRow);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+
+        // Event listeners for sending the message
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+
+</body>
+
+</html>
